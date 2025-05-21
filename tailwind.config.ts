@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -77,7 +76,10 @@ export default {
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],
         general: ['General Sans', 'sans-serif'],
-        satoshi: ['Satoshi', 'sans-serif']
+        satoshi: ['Satoshi', 'sans-serif'],
+        playfair: ['Playfair Display', 'serif'],
+        manrope: ['Manrope', 'sans-serif'],
+        'space-grotesk': ['Space Grotesk', 'sans-serif']
       },
       borderRadius: {
         lg: 'var(--radius)',

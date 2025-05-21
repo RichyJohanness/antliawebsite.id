@@ -1,7 +1,9 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import url('https://api.fontshare.com/v2/css?f[]=general-sans@1,2,3,4,5,6,700&display=swap');
 @import url('https://api.fontshare.com/v2/css?f[]=satoshi@1,2,3,4,5,6,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -101,16 +103,93 @@
   }
 
   body {
-    @apply bg-background text-foreground font-poppins;
+    @apply bg-background text-foreground font-manrope text-sm;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-satoshi font-bold;
+    @apply font-playfair font-bold;
   }
 
   .subtitle {
-    @apply font-general text-lg text-antlia-blue;
+    @apply font-space-grotesk text-base text-antlia-blue;
   }
+}
+
+/* Modern Typography System */
+.heading-xl {
+  @apply font-playfair text-3xl sm:text-4xl md:text-5xl font-bold;
+}
+
+.heading-lg {
+  @apply font-playfair text-2xl sm:text-3xl font-bold;
+}
+
+.heading-md {
+  @apply font-playfair text-xl sm:text-2xl font-semibold;
+}
+
+.heading-sm {
+  @apply font-playfair text-lg sm:text-xl font-semibold;
+}
+
+.body-lg {
+  @apply font-manrope text-base leading-relaxed;
+}
+
+.body-md {
+  @apply font-manrope text-sm leading-relaxed;
+}
+
+.body-sm {
+  @apply font-manrope text-xs leading-normal;
+}
+
+.caption {
+  @apply font-space-grotesk text-xs text-gray-500;
+}
+
+/* Gradient Border Styles */
+.gradient-border {
+  position: relative;
+  border-radius: 0.5rem;
+  background-clip: padding-box;
+  border: 1px solid transparent;
+  background-color: white;
+}
+
+.gradient-border:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  margin: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #05b2fd, #6f42c1, #e17a9f);
+}
+
+.gradient-border-container {
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background-clip: padding-box;
+  border: 1px solid transparent;
+  background-color: white;
+}
+
+.gradient-border-container:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  margin: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #05b2fd, #6f42c1, #e17a9f);
 }
 
 /* Animation Keyframes */
