@@ -17,16 +17,18 @@ const ArticlesPage = () => {
     const fetchArticles = async () => {
       setIsLoading(true);
       try {
-        // Updated to explicitly order by published_at in descending order (newest first)
+        // Make sure to sort by published_at in descending order to get the latest articles first
         const { data, error } = await supabase
           .from("articles")
           .select("*")
           .eq("status", "published")
-          .order("published_at", { ascending: false }); // Explicitly ordering by published_at desc
+          .order("published_at", { ascending: false });
 
         if (error) {
           throw error;
         }
+
+        console.log("Articles fetched:", data); // For debugging
 
         if (data) {
           const mappedArticles: Article[] = data.map(article => ({
@@ -48,11 +50,8 @@ const ArticlesPage = () => {
             images: article.images || []
           }));
           
-          // Set the articles state with the mapped articles
           setArticles(mappedArticles);
-          
-          // Log to verify that we're getting the latest articles
-          console.log("Latest articles fetched:", mappedArticles);
+          console.log("Latest articles:", mappedArticles.slice(0, 3)); // Display the 3 latest articles
         }
       } catch (error: any) {
         toast({
@@ -79,8 +78,8 @@ const ArticlesPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-2 text-center font-playfair">Artikel</h1>
-      <p className="text-gray-600 mb-8 text-center font-manrope text-sm">
+      <h1 className="heading-lg mb-2 text-center">Artikel</h1>
+      <p className="body-md text-gray-600 mb-8 text-center">
         Temukan artikel terbaru dan wawasan dari tim ANTLIA
       </p>
       
@@ -88,7 +87,7 @@ const ArticlesPage = () => {
         <input
           type="text"
           placeholder="Cari artikel..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-antlia-blue font-manrope text-sm"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-antlia-blue body-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -97,21 +96,17 @@ const ArticlesPage = () => {
       {isLoading ? (
         <div className="text-center py-16">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-antlia-blue"></div>
-          <p className="mt-4 text-gray-600 font-manrope text-sm">Memuat artikel...</p>
+          <p className="mt-4 text-gray-600 body-sm">Memuat artikel...</p>
         </div>
       ) : filteredArticles.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-lg text-gray-600 font-manrope">Tidak ada artikel yang ditemukan</p>
+          <p className="body-md text-gray-600">Tidak ada artikel yang ditemukan</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Map through the filtered articles to display them */}
           {filteredArticles.map((article) => (
-            <Card 
-              key={article.id} 
-              className="overflow-hidden hover:shadow-lg transition-shadow gradient-border"
-            >
-              <CardHeader className="p-0">
+            <div key={article.id} className="gradient-border rounded-lg overflow-hidden">
+              <div className="h-full flex flex-col">
                 <div className="h-48 bg-antlia-light flex items-center justify-center">
                   {article.coverImage ? (
                     <img 
@@ -137,35 +132,35 @@ const ArticlesPage = () => {
                     </div>
                   )}
                 </div>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs text-gray-500 font-manrope">{new Date(article.publishedAt).toLocaleDateString('id-ID')}</span>
-                  {article.category && (
-                    <span className="inline-block bg-antlia-blue/10 text-antlia-blue px-2 py-1 text-xs rounded-full font-manrope">
-                      {article.category}
-                    </span>
+                <div className="p-6 flex-grow bg-white">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs text-gray-500">{new Date(article.publishedAt).toLocaleDateString('id-ID')}</span>
+                    {article.category && (
+                      <span className="inline-block bg-antlia-blue/10 text-antlia-blue px-2 py-1 text-xs rounded-full">
+                        {article.category}
+                      </span>
+                    )}
+                  </div>
+                  <Link to={`/artikel/${article.slug}`}>
+                    <h3 className="heading-sm mb-2 hover:text-antlia-blue transition-colors">
+                      {article.title}
+                    </h3>
+                  </Link>
+                  <p className="body-sm text-gray-600 line-clamp-3">{article.excerpt}</p>
+                </div>
+                <div className="px-6 pb-6 bg-white flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-7 h-7 bg-antlia-purple rounded-full flex items-center justify-center text-white">
+                      {article.author.charAt(0)}
+                    </div>
+                    <span className="text-xs ml-2 text-gray-700">{article.author}</span>
+                  </div>
+                  {article.readingTime && (
+                    <span className="text-xs text-gray-500">{article.readingTime} min read</span>
                   )}
                 </div>
-                <Link to={`/artikel/${article.slug}`}>
-                  <h3 className="text-lg font-bold mb-2 hover:text-antlia-blue transition-colors font-playfair">
-                    {article.title}
-                  </h3>
-                </Link>
-                <p className="text-gray-600 line-clamp-3 text-sm font-manrope">{article.excerpt}</p>
-              </CardContent>
-              <CardFooter className="flex items-center justify-between pt-0">
-                <div className="flex items-center">
-                  <div className="w-7 h-7 bg-antlia-purple rounded-full flex items-center justify-center text-white">
-                    {article.author.charAt(0)}
-                  </div>
-                  <span className="text-xs ml-2 text-gray-700 font-manrope">{article.author}</span>
-                </div>
-                {article.readingTime && (
-                  <span className="text-xs text-gray-500 font-manrope">{article.readingTime} min read</span>
-                )}
-              </CardFooter>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}

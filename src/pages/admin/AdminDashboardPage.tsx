@@ -23,7 +23,7 @@ const AdminDashboardPage = () => {
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
-        // Get all articles
+        // Get all articles ordered by latest update first
         const { data: allArticles, error: articlesError } = await supabase
           .from("articles")
           .select("*")
@@ -85,66 +85,72 @@ const AdminDashboardPage = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Dashboard Admin</h1>
-        <p className="text-gray-600">Selamat datang di panel admin ANTLIA.</p>
+        <h1 className="heading-lg mb-2">Dashboard Admin</h1>
+        <p className="body-md text-gray-600">Selamat datang di panel admin ANTLIA.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="gradient-border">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Total Artikel
-            </CardTitle>
-            <FileText className="h-5 w-5 text-antlia-blue" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{statistics.totalArticles}</div>
-            <p className="text-sm text-gray-600 mt-1">
-              {statistics.publishedArticles} dipublikasikan, {statistics.draftArticles} draft
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="gradient-border">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Penulis
-            </CardTitle>
-            <Users className="h-5 w-5 text-antlia-purple" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {statistics.uniqueAuthors}
+        <div className="gradient-border rounded-lg">
+          <div className="bg-white p-6 h-full">
+            <div className="flex flex-row items-center justify-between pb-2">
+              <h3 className="text-sm font-medium text-gray-500">
+                Total Artikel
+              </h3>
+              <FileText className="h-5 w-5 text-antlia-blue" />
             </div>
-            <p className="text-sm text-gray-600 mt-1">
-              Total penulis aktif
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="gradient-border">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Bulan Ini
-            </CardTitle>
-            <Calendar className="h-5 w-5 text-antlia-cyan" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {statistics.monthlyArticles}
+            <div>
+              <div className="text-3xl font-bold">{statistics.totalArticles}</div>
+              <p className="body-sm text-gray-600 mt-1">
+                {statistics.publishedArticles} dipublikasikan, {statistics.draftArticles} draft
+              </p>
             </div>
-            <p className="text-sm text-gray-600 mt-1">
-              Artikel dipublikasikan bulan ini
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        <div className="gradient-border rounded-lg">
+          <div className="bg-white p-6 h-full">
+            <div className="flex flex-row items-center justify-between pb-2">
+              <h3 className="text-sm font-medium text-gray-500">
+                Penulis
+              </h3>
+              <Users className="h-5 w-5 text-antlia-purple" />
+            </div>
+            <div>
+              <div className="text-3xl font-bold">
+                {statistics.uniqueAuthors}
+              </div>
+              <p className="body-sm text-gray-600 mt-1">
+                Total penulis aktif
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="gradient-border rounded-lg">
+          <div className="bg-white p-6 h-full">
+            <div className="flex flex-row items-center justify-between pb-2">
+              <h3 className="text-sm font-medium text-gray-500">
+                Bulan Ini
+              </h3>
+              <Calendar className="h-5 w-5 text-antlia-cyan" />
+            </div>
+            <div>
+              <div className="text-3xl font-bold">
+                {statistics.monthlyArticles}
+              </div>
+              <p className="body-sm text-gray-600 mt-1">
+                Artikel dipublikasikan bulan ini
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <Card className="gradient-border">
-        <CardHeader>
-          <CardTitle>Artikel Terbaru</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="gradient-border rounded-lg">
+        <div className="bg-white p-6">
+          <div className="mb-4">
+            <h3 className="heading-sm">Artikel Terbaru</h3>
+          </div>
           <div className="relative overflow-x-auto">
             <table className="w-full text-left">
               <thead className="text-sm text-gray-700 uppercase bg-gray-50">
@@ -189,8 +195,8 @@ const AdminDashboardPage = () => {
               </tbody>
             </table>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

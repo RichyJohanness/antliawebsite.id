@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import url('https://api.fontshare.com/v2/css?f[]=general-sans@1,2,3,4,5,6,700&display=swap');
 @import url('https://api.fontshare.com/v2/css?f[]=satoshi@1,2,3,4,5,6,700&display=swap');
@@ -151,13 +152,12 @@
 /* Gradient Border Styles */
 .gradient-border {
   position: relative;
-  border-radius: 0.5rem;
+  z-index: 0;
+  padding: 1px;
   background-clip: padding-box;
-  border: 1px solid transparent;
-  background-color: white;
 }
 
-.gradient-border:before {
+.gradient-border::before {
   content: '';
   position: absolute;
   top: 0;
@@ -170,16 +170,21 @@
   background: linear-gradient(135deg, #05b2fd, #6f42c1, #e17a9f);
 }
 
+.gradient-border > * {
+  background: #fff;
+  border-radius: inherit;
+  height: 100%;
+}
+
 .gradient-border-container {
   position: relative;
   padding: 1.5rem;
   border-radius: 0.5rem;
-  background-clip: padding-box;
-  border: 1px solid transparent;
-  background-color: white;
+  background: white;
+  overflow: hidden;
 }
 
-.gradient-border-container:before {
+.gradient-border-container::before {
   content: '';
   position: absolute;
   top: 0;
@@ -187,7 +192,7 @@
   bottom: 0;
   left: 0;
   z-index: -1;
-  margin: -1px;
+  margin: -2px;
   border-radius: inherit;
   background: linear-gradient(135deg, #05b2fd, #6f42c1, #e17a9f);
 }

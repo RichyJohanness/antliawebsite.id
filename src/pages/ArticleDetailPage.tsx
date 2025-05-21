@@ -48,6 +48,9 @@ const ArticleDetailPage = () => {
             readingTime: data.reading_time,
             images: data.images || [] // Ensure images array is available
           });
+          
+          console.log("Article fetched:", data);
+          console.log("Images:", data.images);
         }
       } catch (error: any) {
         if (error.code === 'PGRST116') {
@@ -73,7 +76,7 @@ const ArticleDetailPage = () => {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-antlia-blue"></div>
-        <p className="mt-4 text-gray-600 font-manrope text-sm">Memuat artikel...</p>
+        <p className="mt-4 text-gray-600 body-sm">Memuat artikel...</p>
       </div>
     );
   }
@@ -81,11 +84,11 @@ const ArticleDetailPage = () => {
   if (!article) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <h1 className="text-2xl font-bold mb-4 font-playfair">Artikel tidak ditemukan</h1>
-        <p className="mb-8 font-manrope text-sm">Artikel yang Anda cari tidak tersedia atau telah dihapus.</p>
+        <h1 className="heading-md mb-4">Artikel tidak ditemukan</h1>
+        <p className="mb-8 body-sm">Artikel yang Anda cari tidak tersedia atau telah dihapus.</p>
         <Button 
           onClick={() => navigate("/artikel")}
-          className="bg-antlia-blue hover:bg-blue-600 font-manrope text-sm"
+          className="bg-antlia-blue hover:bg-blue-600 body-sm"
         >
           Kembali ke Daftar Artikel
         </Button>
@@ -95,14 +98,14 @@ const ArticleDetailPage = () => {
   
   return (
     <div className="container mx-auto px-4 py-12">
-      <Link to="/artikel" className="inline-flex items-center text-antlia-blue mb-6 hover:underline font-manrope text-sm">
+      <Link to="/artikel" className="inline-flex items-center text-antlia-blue mb-6 hover:underline body-sm">
         <ArrowLeft className="h-4 w-4 mr-1" />
         Kembali ke Daftar Artikel
       </Link>
       
-      <article className="gradient-border-container">
+      <div className="gradient-border-container">
         <header className="mb-8">
-          <div className="flex items-center space-x-2 text-xs text-gray-600 mb-2 font-manrope">
+          <div className="flex items-center space-x-2 text-xs text-gray-600 mb-2 body-sm">
             {article.category && (
               <>
                 <span className="bg-antlia-blue/10 text-antlia-blue px-3 py-1 rounded-full">
@@ -126,7 +129,7 @@ const ArticleDetailPage = () => {
             )}
           </div>
           
-          <h1 className="text-3xl font-bold mb-4 font-playfair">{article.title}</h1>
+          <h1 className="heading-lg mb-4">{article.title}</h1>
           
           <div className="flex items-center">
             <div className="w-9 h-9 bg-antlia-purple rounded-full flex items-center justify-center text-white">
@@ -141,9 +144,9 @@ const ArticleDetailPage = () => {
               )}
             </div>
             <div className="ml-3">
-              <p className="font-medium text-sm font-manrope">{article.author}</p>
+              <p className="font-medium body-sm">{article.author}</p>
               {article.authorEmail && (
-                <p className="text-xs text-gray-600 font-manrope">{article.authorEmail}</p>
+                <p className="text-xs text-gray-600">{article.authorEmail}</p>
               )}
             </div>
           </div>
@@ -160,22 +163,24 @@ const ArticleDetailPage = () => {
         )}
         
         <div 
-          className="prose prose-sm max-w-none font-manrope"
+          className="prose prose-sm max-w-none body-md"
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
         
         {/* Display article images in a gallery with gradient borders */}
         {article.images && article.images.length > 0 && (
           <div className="mt-10 mb-8">
-            <h3 className="text-xl font-semibold mb-4 font-playfair">Galeri</h3>
+            <h3 className="heading-sm mb-4">Galeri</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {article.images.map((imageUrl, index) => (
-                <div key={index} className="relative overflow-hidden rounded-lg shadow-md bg-gray-100 gradient-border">
-                  <img 
-                    src={imageUrl} 
-                    alt={`${article.title} - Gambar ${index + 1}`}
-                    className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
-                  />
+                <div key={index} className="gradient-border rounded-lg overflow-hidden">
+                  <div>
+                    <img 
+                      src={imageUrl} 
+                      alt={`${article.title} - Gambar ${index + 1}`}
+                      className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -187,14 +192,14 @@ const ArticleDetailPage = () => {
             {article.keywords.map((keyword) => (
               <span 
                 key={keyword} 
-                className="bg-antlia-light text-gray-700 px-3 py-1 rounded-full text-xs font-manrope"
+                className="bg-antlia-light text-gray-700 px-3 py-1 rounded-full text-xs"
               >
                 #{keyword}
               </span>
             ))}
           </div>
         </footer>
-      </article>
+      </div>
     </div>
   );
 };
