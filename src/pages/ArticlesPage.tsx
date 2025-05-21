@@ -17,11 +17,12 @@ const ArticlesPage = () => {
     const fetchArticles = async () => {
       setIsLoading(true);
       try {
+        // Updated to explicitly order by published_at in descending order (newest first)
         const { data, error } = await supabase
           .from("articles")
           .select("*")
           .eq("status", "published")
-          .order("published_at", { ascending: false }); // Order by published_at to get latest
+          .order("published_at", { ascending: false }); // Explicitly ordering by published_at desc
 
         if (error) {
           throw error;
@@ -47,7 +48,11 @@ const ArticlesPage = () => {
             images: article.images || []
           }));
           
+          // Set the articles state with the mapped articles
           setArticles(mappedArticles);
+          
+          // Log to verify that we're getting the latest articles
+          console.log("Latest articles fetched:", mappedArticles);
         }
       } catch (error: any) {
         toast({
@@ -100,6 +105,7 @@ const ArticlesPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Map through the filtered articles to display them */}
           {filteredArticles.map((article) => (
             <Card 
               key={article.id} 

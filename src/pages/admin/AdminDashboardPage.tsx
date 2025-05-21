@@ -90,7 +90,7 @@ const AdminDashboardPage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
+        <Card className="gradient-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">
               Total Artikel
@@ -105,7 +105,7 @@ const AdminDashboardPage = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="gradient-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">
               Penulis
@@ -122,7 +122,7 @@ const AdminDashboardPage = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="gradient-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">
               Bulan Ini
@@ -140,7 +140,7 @@ const AdminDashboardPage = () => {
         </Card>
       </div>
 
-      <Card>
+      <Card className="gradient-border">
         <CardHeader>
           <CardTitle>Artikel Terbaru</CardTitle>
         </CardHeader>

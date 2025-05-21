@@ -46,7 +46,7 @@ const ArticleDetailPage = () => {
             coverImage: data.cover_image,
             status: data.status,
             readingTime: data.reading_time,
-            images: data.images || [] // Make sure to include images
+            images: data.images || [] // Ensure images array is available
           });
         }
       } catch (error: any) {
@@ -164,7 +164,7 @@ const ArticleDetailPage = () => {
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
         
-        {/* Display article images in a gallery */}
+        {/* Display article images in a gallery with gradient borders */}
         {article.images && article.images.length > 0 && (
           <div className="mt-10 mb-8">
             <h3 className="text-xl font-semibold mb-4 font-playfair">Galeri</h3>

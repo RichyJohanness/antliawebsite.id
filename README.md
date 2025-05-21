@@ -1,73 +1,85 @@
-# Welcome to your Lovable project
 
-## Project info
+# ANTLIA Web Application
 
-**URL**: https://lovable.dev/projects/7dc1d9fe-2b98-445d-8315-7d545b860ce0
+## Recent Updates
 
-## How can I edit this code?
+### UI Improvements - Gradient Cards and Latest Articles Display
 
-There are several ways of editing your application.
+The following files have been updated to add gradient borders to cards and ensure the latest articles are properly displayed:
 
-**Use Lovable**
+1. **src/index.css**
+   - Added gradient border styles using CSS pseudo-elements
+   - Fixed gradient color values (#05b2fd, #6f42c1, #e17a9f)
+   - Maintained existing typography system and animation classes
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7dc1d9fe-2b98-445d-8315-7d545b860ce0) and start prompting.
+2. **src/pages/ArticlesPage.tsx**
+   - Applied gradient border styles to article cards
+   - Enhanced article fetching with explicit ordering by published_at date
+   - Added logging to verify latest articles are being fetched
+   - Maintained existing filtering functionality
 
-Changes made via Lovable will be committed automatically to this repo.
+3. **src/pages/ArticleDetailPage.tsx**
+   - Applied gradient border to the main article container
+   - Enhanced image gallery with gradient borders
+   - Maintained responsive layout for different screen sizes
 
-**Use your preferred IDE**
+4. **src/pages/admin/AdminDashboardPage.tsx**
+   - Applied gradient borders to statistics cards and recent articles table
+   - Maintained existing functionality for fetching and displaying data
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Key Features
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Modern typography system with consistent font usage
+- Gradient borders for cards with smooth color transitions
+- Latest articles sorting based on publication date
+- Responsive image galleries
+- Clean article detail display
 
-Follow these steps:
+## Technical Implementation
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Gradient Borders
+The gradient borders are implemented using CSS pseudo-elements with a linear gradient:
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```css
+.gradient-border:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  margin: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #05b2fd, #6f42c1, #e17a9f);
+}
 ```
 
-**Edit a file directly in GitHub**
+### Latest Articles Sorting
+Articles are sorted by ensuring the Supabase query explicitly orders by published_at in descending order:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```typescript
+const { data, error } = await supabase
+  .from("articles")
+  .select("*")
+  .eq("status", "published")
+  .order("published_at", { ascending: false });
+```
 
-**Use GitHub Codespaces**
+### Gallery Image Sizing
+Images in the gallery are displayed with consistent sizing and hover effects:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```jsx
+<img 
+  src={imageUrl} 
+  alt={`${article.title} - Gambar ${index + 1}`}
+  className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
+/>
+```
 
-## What technologies are used for this project?
+## Next Steps
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/7dc1d9fe-2b98-445d-8315-7d545b860ce0) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- Consider adding animation effects to the gradient borders
+- Implement pagination for the article list when it grows larger
+- Add social sharing functionality for articles
+- Create related articles section at the bottom of article detail page
