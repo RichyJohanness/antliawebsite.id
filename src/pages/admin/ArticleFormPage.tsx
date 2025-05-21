@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -38,6 +37,9 @@ const ArticleFormPage = () => {
   const [uploadedImages, setUploadedImages] = useState<{url: string, file: File}[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverImageInputRef = useRef<HTMLInputElement>(null);
+  const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   const emptyArticle: Article = {
     id: "",
@@ -129,6 +131,11 @@ const ArticleFormPage = () => {
           if (fetchedArticle.images && fetchedArticle.images.length > 0) {
             const imageObjects = fetchedArticle.images.map(url => ({ url, file: new File([], "") }));
             setUploadedImages(imageObjects);
+          }
+
+          // Set cover image preview if available
+          if (fetchedArticle.coverImage) {
+            setCoverImagePreview(fetchedArticle.coverImage);
           }
         }
       } catch (error: any) {
@@ -259,6 +266,69 @@ const ArticleFormPage = () => {
     }
   };
 
+  // Handle cover image upload
+  const handleCoverImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    
+    setUploadingCover(true);
+    const file = e.target.files[0];
+    
+    try {
+      // Create preview for the UI
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target && typeof event.target.result === 'string') {
+          setCoverImagePreview(event.target.result);
+        }
+      };
+      reader.readAsDataURL(file);
+      
+      // Create a unique filename to avoid collisions
+      const fileName = `cover-${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+      const filePath = `article-covers/${fileName}`;
+      
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('articles')
+        .upload(filePath, file);
+        
+      if (error) {
+        throw error;
+      }
+      
+      // Get the public URL for the uploaded file
+      const { data: publicUrlData } = supabase.storage
+        .from('articles')
+        .getPublicUrl(filePath);
+        
+      // Set the cover image URL in the article state
+      if (publicUrlData) {
+        setArticle({
+          ...article,
+          coverImage: publicUrlData.publicUrl
+        });
+        
+        toast({
+          title: "Berhasil",
+          description: "Cover gambar berhasil diunggah",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: `Gagal mengunggah cover gambar: ${error.message}`,
+        variant: "destructive",
+      });
+      // Reset preview if upload failed
+      setCoverImagePreview(article.coverImage || null);
+    } finally {
+      setUploadingCover(false);
+      if (coverImageInputRef.current) {
+        coverImageInputRef.current.value = '';
+      }
+    }
+  };
+
   // Remove uploaded image
   const removeImage = (index: number) => {
     setUploadedImages((prev) => {
@@ -266,6 +336,15 @@ const ArticleFormPage = () => {
       newImages.splice(index, 1);
       return newImages;
     });
+  };
+
+  // Remove cover image
+  const removeCoverImage = () => {
+    setArticle({
+      ...article,
+      coverImage: undefined
+    });
+    setCoverImagePreview(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -431,11 +510,74 @@ const ArticleFormPage = () => {
               </CardContent>
             </Card>
 
+            {/* Cover Image Upload Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload Cover Image</CardTitle>
+                <CardDescription>
+                  Upload gambar utama untuk artikel ini
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-4">
+                  <input
+                    type="file"
+                    id="coverImage"
+                    ref={coverImageInputRef}
+                    accept="image/*"
+                    onChange={handleCoverImageChange}
+                    className="hidden"
+                  />
+                  
+                  {/* Cover image preview */}
+                  {coverImagePreview ? (
+                    <div className="relative">
+                      <img 
+                        src={coverImagePreview} 
+                        alt="Cover Preview" 
+                        className="w-full h-48 object-cover rounded-md"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeCoverImage}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => coverImageInputRef.current?.click()}
+                      disabled={uploadingCover}
+                      className="w-full py-8 border-dashed"
+                    >
+                      {uploadingCover ? (
+                        <div className="flex items-center">
+                          <div className="animate-spin h-4 w-4 mr-2 border-t-2 border-b-2 border-antlia-blue rounded-full"></div>
+                          <span>Mengupload cover...</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center">
+                          <Upload className="h-8 w-8 mb-2 text-gray-400" />
+                          <span>Klik untuk upload cover image</span>
+                          <span className="text-xs text-gray-500">
+                            Pilih gambar dari device Anda
+                          </span>
+                        </div>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Upload Gambar</CardTitle>
                 <CardDescription>
-                  Upload gambar untuk artikel ini
+                  Upload gambar tambahan untuk artikel ini
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -551,6 +693,7 @@ const ArticleFormPage = () => {
             </Card>
           </TabsContent>
 
+          {/* Meta & SEO Tab - keeping existing code */}
           <TabsContent value="meta" className="space-y-6">
             <Card>
               <CardHeader>
@@ -648,6 +791,7 @@ const ArticleFormPage = () => {
             </Card>
           </TabsContent>
 
+          {/* Preview Tab - updating to show cover image preview */}
           <TabsContent value="preview">
             <Card>
               <CardHeader>
@@ -657,6 +801,17 @@ const ArticleFormPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Cover image preview */}
+                {coverImagePreview && (
+                  <div className="w-full h-48 md:h-64 overflow-hidden rounded-md mb-4">
+                    <img 
+                      src={coverImagePreview} 
+                      alt="Cover Preview" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
                 <div className="border-b pb-4">
                   <h2 className="text-2xl font-bold mb-2">{article.title || "Judul Artikel"}</h2>
                   <div className="flex items-center space-x-2 text-sm text-gray-600">

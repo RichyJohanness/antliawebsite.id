@@ -1,5 +1,4 @@
-
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   Card,
@@ -18,6 +17,9 @@ import FeatureCard from "@/components/FeatureCard";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import TeamSection from "@/components/TeamSection";
+import { Article } from "@/types/article";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const partners = [
   { id: 1, name: "Company A", logo: "/assets/partner-1.png" },
@@ -65,6 +67,62 @@ const teamMembers = [
 
 const HomePage = () => {
   const isMobile = useIsMobile();
+  const { toast } = useToast();
+  const [latestArticles, setLatestArticles] = useState<Article[]>([]);
+  const [isLoadingArticles, setIsLoadingArticles] = useState(true);
+  
+  // Fetch latest articles from Supabase
+  useEffect(() => {
+    const fetchLatestArticles = async () => {
+      try {
+        setIsLoadingArticles(true);
+        const { data, error } = await supabase
+          .from("articles")
+          .select("*")
+          .eq("status", "published")
+          .order("published_at", { ascending: false })
+          .limit(3);
+
+        if (error) {
+          throw error;
+        }
+
+        if (data) {
+          const mappedArticles: Article[] = data.map(article => ({
+            id: article.id,
+            title: article.title,
+            slug: article.slug,
+            content: article.content,
+            excerpt: article.excerpt,
+            author: article.author,
+            authorEmail: article.author_email,
+            category: article.category,
+            keywords: article.keywords || [],
+            createdAt: article.created_at,
+            updatedAt: article.updated_at,
+            publishedAt: article.published_at,
+            coverImage: article.cover_image,
+            status: article.status,
+            readingTime: article.reading_time,
+            images: article.images || []
+          }));
+          
+          setLatestArticles(mappedArticles);
+        }
+      } catch (error: any) {
+        console.error("Error fetching latest articles:", error);
+        toast({
+          title: "Error",
+          description: `Gagal mengambil artikel terbaru: ${error.message}`,
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingArticles(false);
+      }
+    };
+
+    fetchLatestArticles();
+  }, [toast]);
   
   useEffect(() => {
     // Initialize AOS-like animations
@@ -260,7 +318,7 @@ const HomePage = () => {
       {/* Partner Logos */}
       <LogoMarquee logos={partners} />
       
-      {/* Blog Preview Section */}
+      {/* Blog Preview Section - Updated to use real articles from Supabase */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 animate-on-scroll">
@@ -272,79 +330,71 @@ const HomePage = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="hover:shadow-lg transition-shadow duration-300 animate-on-scroll">
-              <CardHeader>
-                <CardTitle>Transformasi Digital di Indonesia</CardTitle>
-                <CardDescription>12 Mei 2023</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-48 overflow-hidden rounded-md mb-4">
-                  <img 
-                    src="/assets/blog-1.jpg" 
-                    alt="Transformasi Digital" 
-                    className="w-full h-full object-cover"
-                  />
+          {isLoadingArticles ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-antlia-blue"></div>
+            </div>
+          ) : latestArticles.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {latestArticles.map((article, index) => (
+                <div key={article.id} className="gradient-border rounded-lg overflow-hidden">
+                  <Card className="border-0 h-full animate-on-scroll" style={{animationDelay: `${index * 100}ms`}}>
+                    <CardHeader>
+                      <CardTitle className="line-clamp-2">{article.title}</CardTitle>
+                      <CardDescription>
+                        {new Date(article.publishedAt).toLocaleDateString('id-ID')}
+                        {article.category && (
+                          <span className="inline-block bg-antlia-blue/10 text-antlia-blue px-2 py-1 text-xs rounded-full ml-2">
+                            {article.category}
+                          </span>
+                        )}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="h-48 overflow-hidden rounded-md mb-4">
+                        {article.coverImage ? (
+                          <img 
+                            src={article.coverImage} 
+                            alt={article.title} 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-antlia-light/30 flex items-center justify-center">
+                            <svg 
+                              xmlns="http://www.w3.org/2000/svg" 
+                              className="h-16 w-16 text-antlia-blue/50"
+                              fill="none" 
+                              viewBox="0 0 24 24" 
+                              stroke="currentColor"
+                            >
+                              <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={2} 
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
+                              />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-gray-600 line-clamp-3">
+                        {article.excerpt}
+                      </p>
+                    </CardContent>
+                    <CardFooter>
+                      <Link to={`/artikel/${article.slug}`} className="text-antlia-blue hover:underline flex items-center">
+                        Baca selengkapnya <ChevronRight className="ml-1 w-4 h-4" />
+                      </Link>
+                    </CardFooter>
+                  </Card>
                 </div>
-                <p className="text-gray-600">
-                  Bagaimana perusahaan Indonesia mengadopsi transformasi digital untuk tetap kompetitif di era modern.
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Link to="/artikel/memahami-transformasi-digital-di-indonesia" className="text-antlia-blue hover:underline flex items-center">
-                  Baca selengkapnya <ChevronRight className="ml-1 w-4 h-4" />
-                </Link>
-              </CardFooter>
-            </Card>
-            
-            <Card className="hover:shadow-lg transition-shadow duration-300 animate-on-scroll" style={{animationDelay: '100ms'}}>
-              <CardHeader>
-                <CardTitle>Keamanan Siber dalam Bisnis</CardTitle>
-                <CardDescription>25 Juni 2023</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-48 overflow-hidden rounded-md mb-4">
-                  <img 
-                    src="/assets/blog-2.jpg" 
-                    alt="Keamanan Siber" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <p className="text-gray-600">
-                  Mengapa keamanan siber harus menjadi prioritas utama bagi setiap bisnis di era digital.
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Link to="/artikel/keamanan-siber-tantangan-era-digital" className="text-antlia-blue hover:underline flex items-center">
-                  Baca selengkapnya <ChevronRight className="ml-1 w-4 h-4" />
-                </Link>
-              </CardFooter>
-            </Card>
-            
-            <Card className="hover:shadow-lg transition-shadow duration-300 animate-on-scroll" style={{animationDelay: '200ms'}}>
-              <CardHeader>
-                <CardTitle>Cloud Computing untuk UKM</CardTitle>
-                <CardDescription>8 Juli 2023</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-48 overflow-hidden rounded-md mb-4">
-                  <img 
-                    src="/assets/blog-3.jpg" 
-                    alt="Cloud Computing" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <p className="text-gray-600">
-                  Manfaat dan panduan implementasi cloud computing untuk Usaha Kecil dan Menengah di Indonesia.
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Link to="/artikel" className="text-antlia-blue hover:underline flex items-center">
-                  Baca selengkapnya <ChevronRight className="ml-1 w-4 h-4" />
-                </Link>
-              </CardFooter>
-            </Card>
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-600">Belum ada artikel yang dipublikasikan</p>
+            </div>
+          )}
           
           <div className="text-center mt-12">
             <Button variant="outline" asChild>

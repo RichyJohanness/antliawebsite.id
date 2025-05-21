@@ -1,67 +1,69 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import MainLayout from "./components/MainLayout";
-import AdminLayout from "./components/admin/AdminLayout";
-import HomePage from "./pages/HomePage";
-import ArticlesPage from "./pages/ArticlesPage";
-import ArticleDetailPage from "./pages/ArticleDetailPage";
-import NotFound from "./pages/NotFound";
-import AdminLoginPage from "./pages/admin/AdminLoginPage";
-import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
-import AdminArticlesPage from "./pages/admin/AdminArticlesPage";
-import ArticleFormPage from "./pages/admin/ArticleFormPage";
-import ProductsPage from "./pages/ProductsPage";
-import ProductDetailPage from "./pages/ProductDetailPage";
-import ServicesPage from "./pages/ServicesPage";
-import ServiceDetailPage from "./pages/ServiceDetailPage";
-import AboutUsPage from "./pages/AboutUsPage";
-import SolutionsPage from "./pages/SolutionsPage";
-import ClientsPage from "./pages/ClientsPage";
-import ContactPage from "./pages/ContactPage";
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-const queryClient = new QueryClient();
+import MainLayout from './components/MainLayout';
+import AdminLayout from './components/admin/AdminLayout';
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Main Site Routes */}
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<HomePage />} />
-            <Route path="produk-layanan" element={<ProductsPage />} />
-            <Route path="produk/:slug" element={<ProductDetailPage />} />
-            <Route path="layanan" element={<ServicesPage />} />
-            <Route path="layanan/:slug" element={<ServiceDetailPage />} />
-            <Route path="tentang-kami" element={<AboutUsPage />} />
-            <Route path="solusi" element={<SolutionsPage />} />
-            <Route path="klien" element={<ClientsPage />} />
-            <Route path="kontak" element={<ContactPage />} />
-            <Route path="artikel" element={<ArticlesPage />} />
-            <Route path="artikel/:slug" element={<ArticleDetailPage />} />
-          </Route>
+import HomePage from './pages/HomePage';
+import AboutUsPage from './pages/AboutUsPage';
+import ProductsPage from './pages/ProductsPage';
+import ProductDetailPage from './pages/ProductDetailPage';
+import ServicesPage from './pages/ServicesPage';
+import ServiceDetailPage from './pages/ServiceDetailPage';
+import SolutionsPage from './pages/SolutionsPage';
+import ClientsPage from './pages/ClientsPage';
+import ContactPage from './pages/ContactPage';
+import ArticlesPage from './pages/ArticlesPage';
+import ArticleDetailPage from './pages/ArticleDetailPage';
+import NotFound from './pages/NotFound';
+import PlaceholderPage from './pages/PlaceholderPage';
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<AdminLoginPage />} />
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path="dashboard" element={<AdminDashboardPage />} />
-            <Route path="articles" element={<AdminArticlesPage />} />
-            <Route path="articles/new" element={<ArticleFormPage />} />
-            <Route path="articles/edit/:id" element={<ArticleFormPage />} />
-          </Route>
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminLoginPage from './pages/admin/AdminLoginPage';
+import AdminArticlesPage from './pages/admin/AdminArticlesPage';
+import ArticleFormPage from './pages/admin/ArticleFormPage';
 
-          {/* 404 Route */}
+import './App.css';
+import { setupArticlesStorage } from './integrations/supabase/storage-setup';
+
+function App() {
+  useEffect(() => {
+    // Initialize storage for articles
+    setupArticlesStorage().catch(console.error);
+  }, []);
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="tentang-kami" element={<AboutUsPage />} />
+          <Route path="produk-layanan" element={<ProductsPage />} />
+          <Route path="produk-layanan/:productSlug" element={<ProductDetailPage />} />
+          <Route path="jasa-layanan" element={<ServicesPage />} />
+          <Route path="jasa-layanan/:serviceSlug" element={<ServiceDetailPage />} />
+          <Route path="solusi" element={<SolutionsPage />} />
+          <Route path="klien" element={<ClientsPage />} />
+          <Route path="kontak" element={<ContactPage />} />
+          <Route path="artikel" element={<ArticlesPage />} />
+          <Route path="artikel/:slug" element={<ArticleDetailPage />} />
           <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+        </Route>
+        
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="/admin/dashboard" />} />
+          <Route path="login" element={<AdminLoginPage />} />
+          <Route path="dashboard" element={<AdminDashboardPage />} />
+          <Route path="articles" element={<AdminArticlesPage />} />
+          <Route path="articles/new" element={<ArticleFormPage />} />
+          <Route path="articles/edit/:id" element={<ArticleFormPage />} />
+          <Route path="settings" element={<PlaceholderPage title="Pengaturan" />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
 export default App;
